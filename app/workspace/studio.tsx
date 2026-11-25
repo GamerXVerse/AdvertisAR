@@ -2,15 +2,14 @@
 
 import {
   ArrowDown, ArrowLeft, ArrowRight, ArrowUpRight, AudioLines,
-  Building2, Check, ChevronDown, ChevronRight, CircleHelp, Copy, Ellipsis,
-  ExternalLink, Eye, Facebook, FileText, FolderOpen, Globe2, Heart, Instagram, Linkedin,
-  Link2, LoaderCircle, LogIn, LogOut, Menu, MessageCircle, PenLine, Plus, Radio, Send,
+  Building2, Check, ChevronDown, ChevronRight, CircleHelp, Copy,
+  ExternalLink, Eye, Facebook, FileText, FolderOpen, Globe2, Instagram, Linkedin, ListChecks,
+  Link2, LoaderCircle, LogIn, LogOut, Menu, PenLine, Plus, Radio, Send,
   Target, Trash2, TriangleAlert, X,
 } from "lucide-react";
 import { FormEvent, useEffect, useRef, useState } from "react";
 import {
-  api, Brief, Campaign, Connection, Content, emptyBrief, exampleBrief, exampleContent,
-  generateSample, Platform, platforms, tones,
+  api, Brief, Campaign, Connection, Content, emptyBrief, Platform, platforms, tones,
 } from "./data";
 
 type View = "studio" | "campaigns" | "channels";
@@ -61,53 +60,55 @@ function Hero({ onStart }: { onStart: () => void }) {
     <div className="hero-copy">
       <span className="hero-kicker">FROM BRIEF TO CAMPAIGN</span>
       <h1>Make your next<br />campaign <em>take off.</em></h1>
-      <p>Turn a simple brief into social content that sounds like your brand. Create, refine, and publish in one workspace.</p>
+      <p>Turn your goal into a marketing plan, a social post, and a landing page. Refine and publish them in one workspace.</p>
       <button className="button hero-button" onClick={onStart}>Start creating <ArrowDown size={15} /></button>
     </div>
     <div className="hero-art" ref={art} aria-hidden="true">
       <div className="orbit orbit-one" /><div className="orbit orbit-two" /><div className="orbit orbit-three" />
-      <div className="hero-card">
-        <div className="hero-card-top"><div className="mini-brand">N</div><div><strong>Northline Running</strong><small>Example campaign</small></div><Ellipsis size={19} /></div>
-        <div className="hero-photo"><span>GO THE<br />LONG WAY.</span></div>
-        <div className="hero-card-bottom"><Heart size={14}/><MessageCircle size={14}/><Send size={13}/><span /></div>
-      </div>
-      <span className="hero-tag"><Instagram size={23} /></span>
+      <div className="hero-photo" />
     </div>
   </section>;
 }
 
-function Preview({ brief, content, generated, readOnly, onEdit, onCopy }: {
-  brief: Brief; content: Content; generated: boolean; readOnly: boolean;
+function Preview({ brief, content, readOnly, generating, onEdit, onCopy }: {
+  brief: Brief; content: Content | null; readOnly: boolean; generating: boolean;
   onEdit: (key: keyof Content, value: string) => void; onCopy: () => void;
 }) {
-  const [tab, setTab] = useState<"post" | "page">("post");
+  const [tab, setTab] = useState<"plan" | "post" | "page">("plan");
   const PlatformIcon = channelIcons[brief.channel];
-  return <section className="panel preview-panel">
+  return <section className="panel preview-panel" aria-busy={generating}>
     <div className="panel-heading preview-heading">
       <span className="section-icon"><Eye size={19} /></span>
-      <div><h2>Campaign preview</h2><p>See how your content comes together.</p></div>
+      <div><h2>Campaign preview</h2><p>Review and edit your campaign materials.</p></div>
     </div>
-    <div className="preview-body">
+    {!content ? <div className="empty-state preview-empty">
+      <span className="section-icon"><ListChecks size={26}/></span>
+      <h3>{generating ? "Creating your campaign" : "Your marketing plan starts here"}</h3>
+      <p>{generating ? "Groq is drafting your plan and campaign copy." : "Describe your goal to generate a marketing plan, social post, and landing page."}</p>
+    </div> : <div className="preview-body">
       <div className="segments" role="group" aria-label="Preview format">
+        <button className={tab === "plan" ? "active" : ""} aria-pressed={tab === "plan"} onClick={() => setTab("plan")}><ListChecks size={15} /> Plan</button>
         <button className={tab === "post" ? "active" : ""} aria-pressed={tab === "post"} onClick={() => setTab("post")}><PlatformIcon size={15} /> Social post</button>
         <button className={tab === "page" ? "active" : ""} aria-pressed={tab === "page"} onClick={() => setTab("page")}><Globe2 size={15} /> Landing page</button>
       </div>
-      {tab === "post" ? <div className="post-preview">
-        <div className="post-heading"><div className="mini-brand">{(brief.company || "N")[0].toUpperCase()}</div><div><strong>{brief.company || "Northline Running"}</strong><small>{brief.channel}</small></div><Ellipsis size={18} /></div>
-        {!generated && <div className="preview-photo"><span>GO THE<br />LONG WAY.</span></div>}
-        {generated ? <label className="editor-label">Caption<textarea readOnly={readOnly} rows={6} maxLength={2200} value={content.caption} onChange={event => onEdit("caption", event.target.value)} /></label> :
-          <p className="sample-caption"><strong>Northline Running</strong> {content.caption.split("\n")[0]}</p>}
+      {tab === "plan" ? <label className="editor-label plan-editor">Marketing plan
+        {readOnly && !content.plan ? <span>This campaign was created before marketing plans were available.</span> :
+          <textarea aria-label="Marketing plan" readOnly={readOnly || generating} rows={14} maxLength={3200} value={content.plan || ""}
+            placeholder="Regenerate this campaign to get a plan, or write your own." onChange={event => onEdit("plan", event.target.value)} />}
+      </label> : tab === "post" ? <div className="post-preview">
+        <div className="post-heading"><div><strong>{brief.company || content.title}</strong><small>{brief.channel}</small></div></div>
+        <label className="editor-label">Caption<textarea readOnly={readOnly || generating} rows={6} maxLength={2200} value={content.caption} onChange={event => onEdit("caption", event.target.value)} /></label>
       </div> : <div className="page-preview">
-        <p className="eyebrow">{brief.company || "Northline Running"}</p>
-        {generated ? <div className="page-fields">
-          <label>Headline<input readOnly={readOnly} value={content.headline} maxLength={110} onChange={event => onEdit("headline", event.target.value)} /></label>
-          <label>Body<textarea readOnly={readOnly} value={content.summary} maxLength={600} rows={3} onChange={event => onEdit("summary", event.target.value)} /></label>
-          <label>Call to action<input readOnly={readOnly} value={content.cta} maxLength={50} onChange={event => onEdit("cta", event.target.value)} /></label>
-          <label>Call-to-action link (optional)<input type="url" readOnly={readOnly} placeholder="https://your-company.com" value={content.cta_url || ""} maxLength={2000} onChange={event => onEdit("cta_url", event.target.value)} /></label>
-        </div> : <><h3>{content.headline}</h3><p>{content.summary}</p><span className="landing-cta">{content.cta} <ArrowUpRight size={14}/></span></>}
+        {brief.company && <p className="eyebrow">{brief.company}</p>}
+        <div className="page-fields">
+          <label>Headline<input readOnly={readOnly || generating} value={content.headline} maxLength={110} onChange={event => onEdit("headline", event.target.value)} /></label>
+          <label>Body<textarea readOnly={readOnly || generating} value={content.summary} maxLength={600} rows={3} onChange={event => onEdit("summary", event.target.value)} /></label>
+          <label>Call to action<input readOnly={readOnly || generating} value={content.cta} maxLength={50} onChange={event => onEdit("cta", event.target.value)} /></label>
+          <label>Call-to-action link (optional)<input type="url" readOnly={readOnly || generating} placeholder="https://" value={content.cta_url || ""} maxLength={2000} onChange={event => onEdit("cta_url", event.target.value)} /></label>
+        </div>
       </div>}
-      <div className="preview-foot"><span><i /> {generated ? (readOnly ? "Published campaign" : "Editable draft") : "Example campaign"}</span>{generated && <button className="text-button" onClick={onCopy}><Copy size={14}/> Copy caption</button>}</div>
-    </div>
+      <div className="preview-foot"><span>{readOnly ? "Published campaign" : "Editable draft"}</span>{tab === "post" && <button className="text-button" onClick={onCopy}><Copy size={14}/> Copy caption</button>}</div>
+    </div>}
   </section>;
 }
 
@@ -134,14 +135,12 @@ export default function Studio() {
   const [failedSave, setFailedSave] = useState(false);
   const briefRef = useRef<HTMLDivElement>(null);
   const activeModal = useRef<HTMLDialogElement>(null);
-  const draftMode = !email;
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     if (params.get("view") === "channels") setView("channels");
     if (params.get("connection") === "success") setNotice({ text: "LinkedIn connected.", error: false });
     if (params.get("connection") === "failed") setNotice({ text: "LinkedIn could not be connected. Try again.", error: true });
-    try { setCampaigns(JSON.parse(localStorage.getItem("advertisar-demo") || "[]")); } catch { /* A clean demo can still open. */ }
     api<{ email: string }>("/auth/session").then(({ email }) => {
       setCampaigns([]);
       setEmail(email);
@@ -207,10 +206,6 @@ export default function Studio() {
   function updateBrief<K extends keyof Brief>(key: K, value: Brief[K]) {
     setBrief(current => ({ ...current, [key]: value }));
   }
-  function storeDemo(items: Campaign[]) {
-    localStorage.setItem("advertisar-demo", JSON.stringify(items));
-    setCampaigns(items);
-  }
   function upsert(campaign: Campaign) {
     setSelected(campaign);
     setCampaigns(items => [campaign, ...items.filter(item => item.id !== campaign.id)]);
@@ -224,16 +219,6 @@ export default function Studio() {
       try { url = new URL(post.cta_url); } catch { throw new Error("Enter a valid HTTPS call-to-action link."); }
       if (url.protocol !== "https:" || url.username) throw new Error("Enter a valid HTTPS call-to-action link.");
     }
-    if (draftMode) {
-      const campaign: Campaign = {
-        id: selected?.id || crypto.randomUUID(), brief, content: post,
-        status: "Draft", shared: false, updated_at: new Date().toISOString(),
-      };
-      storeDemo([campaign, ...campaigns.filter(item => item.id !== campaign.id)]);
-      setSelected(campaign);
-      setFailedSave(false);
-      return campaign;
-    }
     const campaign = await api<Campaign>(selected ? `/campaigns/${selected.id}` : "/campaigns",
       selected ? "PATCH" : "POST", { brief, content: post });
     upsert(campaign);
@@ -242,12 +227,13 @@ export default function Studio() {
   }
   function generate(event: FormEvent) {
     event.preventDefault();
+    if (!email) { openSignIn(); return; }
     void run("generate", async () => {
-      const post = draftMode ? generateSample(brief) : await api<Content>("/generate", "POST", brief);
+      const post = await api<Content>("/generate", "POST", brief);
       setContent(post);
       setFailedSave(true);
       await save(post);
-      notify(draftMode ? "Demo draft saved in this browser." : "Campaign generated and saved.");
+      notify("Campaign generated and saved.");
     });
   }
   function submitSignIn(event: FormEvent) {
@@ -259,8 +245,6 @@ export default function Studio() {
         return;
       }
       const signed = await api<{ email: string }>("/auth/verify", "POST", { email: authEmail, code });
-      setCampaigns([]);
-      newCampaign();
       setEmail(signed.email);
       setModal(null);
       notify("You’re signed in.");
@@ -277,13 +261,13 @@ export default function Studio() {
       await api("/auth/logout", "POST");
       setEmail("");
       setConnections([]);
-      setCampaigns(JSON.parse(localStorage.getItem("advertisar-demo") || "[]"));
+      setCampaigns([]);
       newCampaign();
       notify("Signed out.");
     });
   }
   function connect(platform: Platform) {
-    if (draftMode) { openSignIn(); return; }
+    if (!email) { openSignIn(); return; }
     if (platform === "Bluesky") { setHandle(""); setAppPassword(""); setModal("bluesky"); return; }
     if (platform === "Facebook") { setPageToken(""); setModal("facebook"); return; }
     void run("LinkedIn", async () => {
@@ -319,7 +303,7 @@ export default function Studio() {
   }
   function setPageVisibility() {
     if (!selected || !content) return;
-    if (draftMode) { openSignIn(); return; }
+    if (!email) { openSignIn(); return; }
     void run("page", async () => {
       if (selected.status === "Draft") await save(content);
       const campaign = await api<Campaign>(`/campaigns/${selected.id}/page`, "PATCH", { shared: !selected.shared });
@@ -339,11 +323,8 @@ export default function Studio() {
   function confirmDelete() {
     if (!selected) return;
     void run("delete", async () => {
-      if (draftMode) storeDemo(campaigns.filter(item => item.id !== selected.id));
-      else {
-        await api(`/campaigns/${selected.id}`, "DELETE");
-        setCampaigns(items => items.filter(item => item.id !== selected.id));
-      }
+      await api(`/campaigns/${selected.id}`, "DELETE");
+      setCampaigns(items => items.filter(item => item.id !== selected.id));
       setSelected(null);
       setBrief(emptyBrief);
       setContent(null);
@@ -357,7 +338,6 @@ export default function Studio() {
   const directPublish = brief.channel !== "Instagram";
   const publicLink = selected?.shared ? `/p/${selected.id}` : "";
   const visibleCampaigns = campaigns.filter(item => filter === "All campaigns" || item.status === filter);
-  const previewBrief = content ? brief : exampleBrief;
   const viewTitle = nav.find(item => item.id === view)?.label;
 
   return <div className="shell">
@@ -393,38 +373,35 @@ export default function Studio() {
           <Hero onStart={jumpToBrief} />
           <div className="studio-intro" ref={briefRef}>
             <div><h2>Campaign Studio</h2><p>Start with a brief. Build something worth sharing.</p></div>
-            {!draftMode && <span className="mode"><i /> Live workspace</span>}
           </div>
           <div className="studio-grid">
             <section className="panel form-panel">
-              <div className="panel-heading"><span className="section-icon"><FileText size={19}/></span><div><h2>Campaign brief</h2><p>Tell us what you want to create.</p></div>
-                <button className="text-button example-button" type="button" disabled={Boolean(busy) || readOnly}
-                  onClick={() => { setBrief(exampleBrief); notify("Example brief filled in."); }}>Example</button>
+              <div className="panel-heading"><span className="section-icon"><FileText size={19}/></span><div><h2>Campaign brief</h2><p>Describe what you want to achieve.</p></div>
               </div>
               <form className="brief-form" onSubmit={generate}>
                 <fieldset disabled={Boolean(busy) || readOnly}>
-                  <label htmlFor="company"><Building2 size={15}/> Company name <span>*</span></label>
-                  <input id="company" required minLength={2} maxLength={100} placeholder="e.g. Northline Running" value={brief.company} onChange={event => updateBrief("company", event.target.value)} />
-                  <label htmlFor="description">About your company <span>*</span></label>
-                  <textarea id="description" required minLength={5} maxLength={1600} rows={2} placeholder="What do you do, and what makes your brand different?" value={brief.description} onChange={event => updateBrief("description", event.target.value)} />
                   <label htmlFor="objective"><Target size={15}/> Campaign goal <span>*</span></label>
-                  <textarea id="objective" required minLength={5} maxLength={1200} rows={2} placeholder="e.g. Launch a product, drive sign-ups, or announce an event" value={brief.objective} onChange={event => updateBrief("objective", event.target.value)} />
+                  <textarea id="objective" required minLength={5} maxLength={1200} rows={4} placeholder="What do you want your campaign to achieve?" value={brief.objective} onChange={event => updateBrief("objective", event.target.value)} />
+                  <label htmlFor="company"><Building2 size={15}/> Company name <small>Optional</small></label>
+                  <input id="company" maxLength={100} value={brief.company} onChange={event => updateBrief("company", event.target.value)} />
+                  <label htmlFor="description">About your company <small>Optional</small></label>
+                  <textarea id="description" maxLength={1600} rows={2} value={brief.description} onChange={event => updateBrief("description", event.target.value)} />
                   <label htmlFor="audience">Target audience <small>Optional</small></label>
-                  <input id="audience" maxLength={600} placeholder="Who are you trying to reach?" value={brief.audience} onChange={event => updateBrief("audience", event.target.value)} />
+                  <input id="audience" maxLength={600} value={brief.audience} onChange={event => updateBrief("audience", event.target.value)} />
                   <div className="form-options">
                     <label htmlFor="channel">Social platform<div className="select-wrap"><select id="channel" value={brief.channel} onChange={event => updateBrief("channel", event.target.value as Platform)}>{platforms.map(platform => <option key={platform}>{platform}</option>)}</select><ChevronDown size={15}/></div></label>
                     <label htmlFor="tone">Brand voice<div className="select-wrap"><select id="tone" value={brief.tone} onChange={event => updateBrief("tone", event.target.value as Brief["tone"])}>{tones.map(tone => <option key={tone}>{tone}</option>)}</select><ChevronDown size={15}/></div></label>
                   </div>
                   {content && <label className="campaign-title">Campaign name<input required maxLength={120} value={content.title} onChange={event => setContent({ ...content, title: event.target.value })}/></label>}
                 </fieldset>
-                {!readOnly && <div className="form-bottom"><button type="submit" className="button primary generate" disabled={Boolean(busy)}>
+                {!readOnly && <div className="form-bottom"><button type={email ? "submit" : "button"} className="button primary generate" disabled={Boolean(busy)} onClick={email ? undefined : openSignIn}>
                   {busy === "generate" && <LoaderCircle className="spin" size={17}/>}
-                  {busy === "generate" ? "Generating…" : content ? "Regenerate campaign" : "Generate campaign"}
+                  {busy === "generate" ? "Generating…" : content ? "Regenerate campaign" : email ? "Generate campaign" : "Sign in to generate"}
                 </button></div>}
               </form>
             </section>
             <div className="preview-column">
-              <Preview brief={previewBrief} content={content || exampleContent} generated={Boolean(content)} readOnly={Boolean(readOnly)}
+              <Preview brief={brief} content={content} readOnly={Boolean(readOnly)} generating={busy === "generate"}
                 onEdit={(key, value) => { if (!readOnly) setContent(current => current && ({ ...current, [key]: value })); }}
                 onCopy={() => content && copy(content.caption, "Caption copied.")} />
               {content && <section className="panel action-panel">
@@ -433,8 +410,8 @@ export default function Studio() {
                 <div className="action-buttons">
                   {!readOnly && <button className="button secondary" disabled={Boolean(busy)} onClick={() => run("save", async () => { await save(content); notify("Draft saved."); })}><Check size={16}/> Save draft</button>}
                   {publicLink && <a className="button secondary" href={publicLink} target="_blank" rel="noreferrer"><ExternalLink size={15}/> Open page</a>}
-                  {(selected || !draftMode) && <button className="button secondary" disabled={Boolean(busy) || !selected} onClick={setPageVisibility}><Globe2 size={16}/> {publicLink ? "Unpublish page" : "Publish page"}</button>}
-                  {!readOnly && directPublish && <button className="button primary" disabled={Boolean(busy) || !selected} onClick={() => draftMode ? openSignIn() : setModal("publish")}><Send size={15}/> Publish to {brief.channel}</button>}
+                  <button className="button secondary" disabled={Boolean(busy) || !selected} onClick={setPageVisibility}><Globe2 size={16}/> {publicLink ? "Unpublish page" : "Publish page"}</button>
+                  {!readOnly && directPublish && <button className="button primary" disabled={Boolean(busy) || !selected} onClick={() => setModal("publish")}><Send size={15}/> Publish to {brief.channel}</button>}
                   {!readOnly && selected && <button className="button danger-quiet" disabled={Boolean(busy)} onClick={() => setModal("delete")}><Trash2 size={15}/> Delete draft</button>}
                 </div>
                 {!directPublish && <p>Copy your caption to post it on {brief.channel}.</p>}
@@ -447,18 +424,18 @@ export default function Studio() {
 
         {view === "campaigns" && <section className="inner-view">
           <div className="view-banner"><span className="section-icon"><FolderOpen size={22}/></span><h1>My Campaigns</h1><p>Find drafts and published campaigns in one place.</p></div>
-          <div className="list-controls"><h2>Campaigns <span>{campaigns.length}</span></h2><div className="filter-wrap"><button className="button secondary" onClick={() => setFilterOpen(!filterOpen)} aria-expanded={filterOpen}>{filter}<ChevronDown size={15}/></button>
+          {!email ? <div className="panel empty-state"><h3>Sign in to view your campaigns</h3><button className="button primary" onClick={openSignIn}>Sign in</button></div> : <><div className="list-controls"><h2>Campaigns <span>{campaigns.length}</span></h2><div className="filter-wrap"><button className="button secondary" onClick={() => setFilterOpen(!filterOpen)} aria-expanded={filterOpen}>{filter}<ChevronDown size={15}/></button>
             {filterOpen && <div className="filter-menu">{["All campaigns", "Draft", "Published"].map(item => <button key={item} onClick={() => { setFilter(item); setFilterOpen(false); }}>{item}</button>)}</div>}</div>
           </div>
           {visibleCampaigns.length ? <div className="campaign-list">{visibleCampaigns.map(campaign => {
             const Icon = channelIcons[campaign.brief.channel];
             return <button className="campaign-row" key={campaign.id} onClick={() => openCampaign(campaign)}>
-              <span className="section-icon"><Icon size={20}/></span><span className="campaign-row-copy"><strong>{campaign.content.title}</strong><small>{campaign.brief.company} · {campaign.brief.channel}</small></span>
+              <span className="section-icon"><Icon size={20}/></span><span className="campaign-row-copy"><strong>{campaign.content.title}</strong><small>{[campaign.brief.company, campaign.brief.channel].filter(Boolean).join(" · ")}</small></span>
               <span className={`status-pill ${campaign.status === "Published" ? "published" : ""}`}>{campaign.status}</span><ChevronRight className="row-arrow" size={18}/>
             </button>;
           })}</div> : <div className="panel empty-state"><span className="section-icon"><FolderOpen size={24}/></span><h3>No campaigns here yet</h3><p>{filter === "All campaigns" ? "Create your first campaign in the studio." : "Choose another filter to see more campaigns."}</p>
             <button className="button primary" onClick={filter === "All campaigns" ? newCampaign : () => setFilter("All campaigns")}>
-              {filter === "All campaigns" ? <><Plus size={17}/> New campaign</> : "Show all campaigns"}</button></div>}
+              {filter === "All campaigns" ? <><Plus size={17}/> New campaign</> : "Show all campaigns"}</button></div>}</>}
         </section>}
 
         {view === "channels" && <section className="inner-view">
@@ -502,7 +479,7 @@ export default function Studio() {
         {modal === "facebook" && <form onSubmit={connectFacebook}><span className="section-icon"><Facebook size={21}/></span><h2>Connect a Facebook Page</h2><p>Enter a Page access token issued by the configured Meta app with permission to publish posts.</p>
           <label>Page access token<input type="password" required minLength={20} maxLength={3000} autoComplete="off" value={pageToken} onChange={event => setPageToken(event.target.value)}/></label>
           <button className="button primary" disabled={Boolean(busy)}>Connect Page <ArrowRight size={16}/></button></form>}
-        {modal === "help" && <><span className="section-icon"><CircleHelp size={21}/></span><h2>Workspace help</h2><p>Use the example brief to try the studio. Demo drafts stay in this browser. Sign in with an invited email to generate with Groq, save to your account, or publish.</p><p>Connect a Facebook Page, LinkedIn profile, or Bluesky account to publish directly. Use Copy caption for Instagram.</p></>}
+        {modal === "help" && <><span className="section-icon"><CircleHelp size={21}/></span><h2>Workspace help</h2><p>Sign in with an invited email. Describe your campaign goal, then generate a marketing plan, social post, and landing page with Groq.</p><p>Connect a Facebook Page, LinkedIn profile, or Bluesky account to publish directly. Use Copy caption for Instagram.</p></>}
         {modal === "publish" && <><span className="section-icon"><Send size={21}/></span><h2>Publish to {brief.channel}?</h2><p>{connections.some(item => item.platform === brief.channel) ? "Your current caption will be posted publicly to your connected account." : `Connect a ${brief.channel} account before publishing this campaign.`}</p>
           {connections.some(item => item.platform === brief.channel) ? <button className="button primary" disabled={Boolean(busy)} onClick={confirmPublish}>{busy === "publish" ? "Publishing…" : "Publish now"}</button> :
             <button className="button primary" onClick={() => { setModal(null); navigate("channels"); }}>Go to connections <ArrowRight size={16}/></button>}</>}

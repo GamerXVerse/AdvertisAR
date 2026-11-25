@@ -1,17 +1,17 @@
 # AdvertisAR
 
-AdvertisAR is a campaign workspace for small businesses. Its Next.js studio collects a brand brief, creates editable social copy and a landing page with Groq, and saves the campaign through FastAPI to Postgres. The studio includes original sample artwork, a browser-only demo, and the supplied 2ALabz logo.
+AdvertisAR is a campaign workspace for small businesses. Its Next.js studio collects a brand brief, creates an editable marketing plan, social post, and landing page with Groq, and saves the campaign through FastAPI to Postgres. Campaign generation requires an invited account.
 
 ## Run locally
 
-Install Node.js 24, Python 3.13, and npm. The demo works with the frontend alone.
+Install Node.js 24, Python 3.13, and npm.
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Open http://localhost:3000 and choose **Example**. Demo drafts are stored in your browser and use sample generation. Signing in opens your separate cloud workspace.
+Open http://localhost:3000 to view the studio. Follow the backend setup below to sign in and generate campaigns.
 
 For the full flow, copy `.env.example` to `.env.local` and fill in the variables below. Then run the following from the root, alongside the frontend.
 
@@ -42,7 +42,7 @@ Use `http://localhost:3000` to match the configured origin. For a local Postgres
 | `RESEND_API_KEY` | Server-side Resend key |
 | `AUTH_FROM_EMAIL` | Verified Resend sender, for example `AdvertisAR <login@example.com>` |
 | `GROQ_API_KEY` | GroqCloud API key |
-| `GROQ_MODEL` | Optional JSON-mode model override. Defaults to `openai/gpt-oss-20b` |
+| `GROQ_MODEL` | Optional JSON-mode model override. Defaults to `qwen/qwen3.8-27b` |
 | `TOKEN_ENCRYPTION_KEY` | Fernet key for social credentials, generated with `python -c 'from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())'` |
 | `LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET` | Required for the LinkedIn connection |
 | `FACEBOOK_APP_ID`, `FACEBOOK_APP_SECRET` | Required for Facebook Page token verification |

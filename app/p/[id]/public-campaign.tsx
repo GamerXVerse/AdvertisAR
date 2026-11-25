@@ -20,7 +20,7 @@ export default function PublicCampaign({ id }: { id: string }) {
   }, [id]);
   return <main className="public-wrap">
     <article className="public-campaign">
-      {page ? <><p className="eyebrow">{page.company}</p><h1>{page.headline}</h1>
+      {page ? <>{page.company && <p className="eyebrow">{page.company}</p>}<h1>{page.headline}</h1>
         <p>{page.summary}</p>
         {page.cta_url && <a className="button hero-button public-cta" href={page.cta_url}>{page.cta}</a>}</> :
         <><h1>{error ? "Page unavailable" : "Loading campaign…"}</h1>

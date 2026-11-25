@@ -10,7 +10,7 @@ export type Brief = {
   channel: Platform;
   tone: typeof tones[number];
 };
-export type Content = { title: string; caption: string; headline: string; summary: string; cta: string; cta_url?: string };
+export type Content = { title: string; caption: string; headline: string; summary: string; cta: string; cta_url?: string; plan?: string };
 export type Campaign = {
   id: string;
   brief: Brief;
@@ -25,34 +25,6 @@ export type Connection = { platform: PublishingPlatform; account: string; expire
 export const emptyBrief: Brief = {
   company: "", description: "", objective: "", audience: "", channel: "Instagram", tone: "Bold",
 };
-export const exampleBrief: Brief = {
-  company: "Northline Running",
-  description: "An outdoor running brand building gear for people who take the long way home.",
-  objective: "Introduce our new trail collection and inspire runners to get outside.",
-  audience: "Trail runners and weekend adventurers",
-  channel: "Instagram",
-  tone: "Bold",
-};
-export const exampleContent: Content = {
-  title: "The Trail Collection",
-  headline: "The long way looks good on you.",
-  summary: "Meet the Trail Collection. Built for early starts, steep climbs, and the miles you take just because.",
-  cta: "Explore the collection",
-  caption: "The long way looks good on you. Meet the Trail Collection, built for early starts, steep climbs, and the miles you take just because.\n\n#NorthlineRunning #FindYourTrail #TrailRunning",
-};
-
-export function generateSample(brief: Brief): Content {
-  if (JSON.stringify(brief) === JSON.stringify(exampleBrief)) return exampleContent;
-  const introductions = {
-    Bold: "Make your next move with", Friendly: "Get to know",
-    Professional: "Introducing", Playful: "Say hello to",
-  };
-  const headline = `${introductions[brief.tone]} ${brief.company}`.slice(0, 110);
-  const summary = brief.description.slice(0, 600);
-  const caption = `${headline}.\n\n${summary}\n\n${brief.objective}`.slice(0, brief.channel === "Bluesky" ? 300 : 2200);
-  return { title: `${brief.company} Campaign`, caption, headline, summary, cta: "Learn more" };
-}
-
 export async function api<T>(path: string, method?: string, body?: unknown): Promise<T> {
   let response: Response;
   try {

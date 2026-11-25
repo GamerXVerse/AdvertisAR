@@ -99,41 +99,17 @@ a { color: inherit; }
 .orbit { position: absolute; border: 1px solid #9cb9ff42; border-radius: 100%; width: 102%; height: 75%; left: -1%; top: 14%; transform: rotate(-23deg); }
 .orbit-two { width: 86%; height: 63%; left: 6%; top: 20%; opacity: .70; }
 .orbit-three { width: 70%; height: 51%; left: 14%; top: 26%; opacity: .60; }
-.hero-card {
-  position: absolute; width: min(71%, 342px); right: 15%; top: 50%; transform: translateY(-50%) rotate(-6.7deg);
-  overflow: hidden; color: #172a28; background: white; box-shadow: 0 19px 55px #070e39ae;
-}
-.hero-card-top, .post-heading { display: flex; align-items: center; gap: 8px; text-align: left; }
-.hero-card-top { padding: 10px 11px; }
-.mini-brand {
-  width: 27px; height: 27px; border-radius: 50%; display: grid; place-items: center;
-  font-family: Georgia, serif; font-style: italic; font-weight: 800; flex: 0 0 auto;
-  background: #253e36; color: #eff0dd; letter-spacing: -.07em;
-}
-.hero-card-top strong, .post-heading strong { display: block; font-size: 11px; font-weight: 740; }
-.hero-card-top small, .post-heading small { display: block; color: #617187; font-size: 9px; margin-top: 2px; }
-.hero-card-top > svg, .post-heading > svg { margin-left: auto; color: #5e6974; }
-.hero-photo, .preview-photo {
-  position: relative; display: flex; align-items: flex-end; isolation: isolate;
-  background: #637871 url("/northline-trail.jpg") 57% 48% / cover no-repeat;
-}
-.hero-photo::before, .preview-photo::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(24deg,#172c26b5,transparent 66%); }
-.hero-photo { height: clamp(112px, 14vw, 194px); padding: 12px 15px; }
-.hero-photo span, .preview-photo span {
-  color: #f7f3df; font-style: italic; font-weight: 860; font-stretch: condensed; letter-spacing: -.061em; line-height: .90;
-  font-size: clamp(19px,2.15vw,35px); text-shadow: 0 2px 10px #10282250;
-}
-.hero-card-bottom { display: flex; align-items: center; gap: 10px; padding: 10px 11px; color: #28382e; }
-.hero-card-bottom span { margin-left: auto; width: 25px; height: 4px; background: #e0e7e5; }
-.hero-tag {
-  position: absolute; top: 18%; right: 10%; z-index: 1; display: inline-flex;
-  color: #a7d6f1; transform: rotate(10deg);
+.hero-photo {
+  position: absolute; width: min(73%, 365px); height: 72%; top: 50%; right: 15%;
+  transform: translateY(-50%) rotate(-5deg);
+  background: #637871 url("/northline-trail.jpg") 57% 35% / cover no-repeat;
+  border: 5px solid #e0eef7; box-shadow: 0 19px 55px #08192d99;
 }
 .studio-intro { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin: 32px 0 18px; scroll-margin-top: 18px; }
 .studio-intro h2 { font-size: 29px; letter-spacing: -.042em; line-height: 1.13; }
 .studio-intro p { margin-top: 6px; color: var(--muted); line-height: 1.5; }
-.mode { display: inline-flex; align-items: center; flex: 0 0 auto; gap: 6px; color: #4a6084; font-size: 11px; font-weight: 700; border: 1px solid #dee6f5; background: #f0f4fc; padding: 6px 9px; }
-.mode i, .preview-foot i { display: inline-block; background: #557dec; width: 6px; height: 6px; border-radius: 50%; }
+
+
 .studio-grid { display: grid; grid-template-columns: minmax(0,1.22fr) minmax(0,1fr); gap: 19px; align-items: start; }
 .panel { background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow); min-width: 0; }
 .panel-heading {
@@ -142,7 +118,7 @@ a { color: inherit; }
 .section-icon { display: inline-flex; flex: 0 0 auto; color: var(--blue); }
 .panel-heading h2 { font-weight: 730; letter-spacing: -.023em; font-size: 17px; line-height: 1.15; }
 .panel-heading p { color: var(--muted); margin-top: 5px; font-size: 12px; line-height: 1.35; }
-.example-button { margin-left: auto; }
+
 .brief-form { padding: 19px 21px 21px; }
 .brief-form fieldset { display: grid; gap: 8px; border: 0; padding: 0; margin: 0; min-width: 0; }
 .brief-form label, .editor-label, .page-fields label, .dialog-inner label {
@@ -169,18 +145,24 @@ textarea { resize: vertical; min-height: 58px; }
 .generate { width: 100%; min-height: 43px; }
 .preview-column { display: grid; gap: 15px; position: sticky; top: 14px; min-width: 0; }
 .preview-body { padding: 15px 18px 12px; }
-.segments { display: grid; grid-template-columns: 1fr 1fr; align-items: stretch; padding: 3px; background: #f0f4fa; border: 1px solid #e9eef7; margin-bottom: 13px; }
+.segments { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch; padding: 3px; background: #f0f4fa; border: 1px solid #e9eef7; margin-bottom: 13px; }
 .segments button { display: flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid transparent; padding: 7px 4px; color: #5c6d88; font-weight: 680; font-size: 12px; background: none; }
 .segments button:hover { color: #2459ef; }
 .segments button.active { background: white; border-color: #e1e8f3; color: #2453d4; box-shadow: 0 1px 3px #2034640f; }
 .post-preview { border: 1px solid var(--border); overflow: hidden; background: white; }
-.post-heading { padding: 9px 10px; }
-.preview-photo { height: clamp(132px,15vw,210px); padding: 15px; background-position: 58% 29%; }
-.preview-photo span { font-size: clamp(25px,2.6vw,36px); }
-.sample-caption { padding: 11px 12px; color: #4d5b6f; font-size: 11px; line-height: 1.57; }
-.sample-caption strong { color: #1e3048; margin-right: 3px; }
+.post-heading { padding: 10px 12px 0; }
+.post-heading strong { display: block; font-size: 13px; }
+.post-heading small { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
+
+
+
+
 .editor-label { padding: 10px; }
 .editor-label textarea { background: #f8faff; }
+.plan-editor { padding-inline: 0; }
+.plan-editor textarea { font-size: 13px; line-height: 1.65; }
+.preview-empty { min-height: 213px; justify-content: center; }
+.preview-empty p { max-width: 32ch; }
 .page-preview { min-height: 241px; background: #153b63; color: white; padding: 20px; }
 .page-preview .eyebrow { color: #c9d8ff; margin-bottom: 10px; }
 .eyebrow { text-transform: uppercase; font-size: 10px; font-weight: 750; letter-spacing: .115em; }
@@ -284,16 +266,16 @@ dialog::backdrop { background: #09173570; backdrop-filter: blur(3px); }
   .hero p { margin: 14px 0 13px; max-width: 300px; }
   .hero-kicker { margin-bottom: 12px; }
   .hero-art { position: relative; left: auto; width: min(95%,405px); height: 207px; margin: 0 auto; }
-  .hero-card { width: 67%; right: 16%; }
-  .hero-photo { height: 106px; }
-  .hero-tag { right: 11%; top: 13%; }
+
+  .hero-photo { width: 70%; right: 15%; height: 72%; }
+
   .studio-intro { margin-top: 24px; align-items: flex-start; }
   .studio-intro h2 { font-size: 23px; }
   .studio-intro p { font-size: 12px; }
   .studio-grid, .channel-grid { grid-template-columns: 1fr; gap: 12px; }
   .preview-column { position: static; }
-  .preview-photo { height: clamp(142px,36vw,220px); }
-  .mode { font-size: 10px; padding: 4px 6px; }
+
+
   .view-banner { padding: 18px; }
 }
 @media (prefers-reduced-motion: reduce) {
