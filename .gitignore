@@ -1,0 +1,9 @@
+node_modules/
+.next/
+.vercel/
+.env*
+!.env.example
+.venv/
+__pycache__/
+*.tsbuildinfo
+next-env.d.ts
